@@ -1,6 +1,8 @@
 import wx
 import pcbnew
+import sys
 
+from .logger import Logger
 from os import path
 from pcbnew import ActionPlugin, GetBoard
 
@@ -14,18 +16,21 @@ class AlignRefPlugin(ActionPlugin):
         self.description = "Copyright @ beanjs"
         self.icon_file_name = path.join(cwd, 'icon.png')
         self.show_toolbar_button = True
-        self.logger = open(path.join(cwd, "logger.txt"), "w+")
+        self.logger = Logger(path.join(cwd, "logger.txt"))
 
     def Run(self):
+        print("----------")
+
         board = GetBoard()
+        design = board.GetDesignSettings()
         footprints = board.GetFootprints()
-        designSettings = board.GetDesignSettings()
+        print("footprints: {0}".format(len(footprints)))
 
         for fp in footprints:
             fpLayerId = fp.GetLayer()
 
             ref = fp.Reference()
-            # layerId=ref.GetLayer()
+            print("footprint: {0}".format(ref.GetText()))
 
             if fpLayerId == pcbnew.F_Cu:
                 designLayerId = pcbnew.F_SilkS
@@ -34,17 +39,15 @@ class AlignRefPlugin(ActionPlugin):
                 designLayerId = pcbnew.B_SilkS
                 refLayerId = pcbnew.User_2
 
-            textSize = designSettings.GetTextSize(designLayerId)
-            # self.logger.writelines([textSize, refLayerId])
+            textSize = design.GetTextSize(designLayerId)
 
             ref.SetLayer(refLayerId)
-            ref.SetTextThickness(
-                designSettings.GetTextThickness(designLayerId))
+            ref.SetTextThickness(design.GetTextThickness(designLayerId))
             ref.SetTextWidth(textSize.GetWidth())
             ref.SetTextHeight(textSize.GetHeight())
-            # ref.SetTextAngle(0)
 
             fpCenter = self.GetFPCenter(fp)
+            print("center: {0}".format(fpCenter))
             if fpCenter is None:
                 ref.SetVisible(False)
             else:
