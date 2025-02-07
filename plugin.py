@@ -43,8 +43,8 @@ class AlignRefPlugin(ActionPlugin):
 
             ref.SetLayer(refLayerId)
             ref.SetTextThickness(design.GetTextThickness(designLayerId))
-            ref.SetTextWidth(textSize.GetWidth())
-            ref.SetTextHeight(textSize.GetHeight())
+            ref.SetTextWidth(textSize.x)
+            ref.SetTextHeight(textSize.y)
 
             fpCenter = self.GetFPCenter(fp)
             print("center: {0}".format(fpCenter))
@@ -53,7 +53,7 @@ class AlignRefPlugin(ActionPlugin):
             else:
                 ref.SetPosition(fpCenter)
 
-        wx.MessageBox("align finished!!")
+        # wx.MessageBox("align finished!!")
         pcbnew.Refresh()
 
     def GetFPCenter(self, fp):
